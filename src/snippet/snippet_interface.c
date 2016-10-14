@@ -53,6 +53,7 @@ static bool __Implement_initialize(
 	)
 {
 	Interface_setMethodTable((Interface*)self, &gImplementMethodTable);
+	return true;
 }
 
 // ------------------------------------------------------------------
@@ -80,6 +81,7 @@ static void __Implement_finalize(
 	Implement* self
 	)
 {
+	(void)self;
 }
 
 // ------------------------------------------------------------------

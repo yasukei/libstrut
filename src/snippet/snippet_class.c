@@ -13,6 +13,7 @@ static bool __Class_initialize(
 	Class* self
 	)
 {
+	(void)self;
 	return true;
 }
 
@@ -41,6 +42,7 @@ static void __Class_finalize(
 	Class* self
 	)
 {
+	(void)self;
 }
 
 // ------------------------------------------------------------------
