@@ -1,10 +1,11 @@
-#include <stdlib.h>
+#include "facade.h"
 #include "list.h"
 
 
 // ------------------------------------------------------------------
 // ListNode
 // ------------------------------------------------------------------
+typedef struct ListNode ListNode;
 struct ListNode
 {
 	void* valuePtr;
@@ -16,9 +17,9 @@ ListNode* ListNode_create(
 	void* valuePtr
 	)
 {
-	ListNode self;
+	ListNode* self;
    
-	self = malloc(sizeof(ListNode));
+	self = Malloc(sizeof(ListNode));
 	if(self == NULL)
 	{
 		return NULL;
@@ -30,16 +31,16 @@ ListNode* ListNode_create(
 }
 
 // ------------------------------------------------------------------
-ListNode* ListNode_delete(
-	ListNode self
+void ListNode_delete(
+	ListNode* self
 	)
 {
-	return free(self);
+	Free(self);
 }
 
 // ------------------------------------------------------------------
 void* ListNode_getValuePtr(
-	void
+	ListNode* self
 	)
 {
 	if(self == NULL)
@@ -53,14 +54,14 @@ void* ListNode_getValuePtr(
 // ------------------------------------------------------------------
 // List
 // ------------------------------------------------------------------
-typedef int (ListValueComparator)(const void* lhs, const void* rhs);
+typedef int (*ListValueComparator)(const void* lhs, const void* rhs);
 
+typedef struct List List;
 struct List
 {
 	int numofNodes;
 	ListNode* head;
 	ListNode* tail;
-
 	ListValueComparator comparator;
 };
 
@@ -72,11 +73,12 @@ List* List_createWithComparator(
 {
 	List* self;
 
-	self = mallc(sizeof(List));
+	self = Malloc(sizeof(List));
 
 	self->numofNodes = 0;
 	self->head = NULL;
 	self->tail = NULL;
+	self->comparator = comparator;
 
 	return self;
 }
@@ -84,7 +86,7 @@ List* List_createWithComparator(
 // ------------------------------------------------------------------
 static int __List_compare(
 	const void* lhs,
-	const void* rhs,
+	const void* rhs
 	)
 {
 	if(lhs > rhs)
@@ -116,7 +118,7 @@ void List_delete(
 		return;
 	}
 
-	free(self);
+	Free(self);
 }
 
 // ------------------------------------------------------------------
@@ -125,7 +127,7 @@ bool List_add(
 	void* valuePtr
 	)
 {
-	ListNode node;
+	ListNode* node;
 	
 	node = ListNode_create(valuePtr);
 	if(node == NULL)
