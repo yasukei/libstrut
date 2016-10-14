@@ -19,12 +19,12 @@ void Free(void* ptr)
 // ------------------------------------------------------------------
 void* Calloc(size_t nmemb, size_t size)
 {
-	callo(nmemb, size);
+	return calloc(nmemb, size);
 }
 
 // ------------------------------------------------------------------
 void* Realloc(void* ptr, size_t size)
 {
-	realloc(ptr, size);
+	return realloc(ptr, size);
 }
 
