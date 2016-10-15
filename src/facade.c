@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "facade.h"
 
@@ -26,5 +27,13 @@ void* Calloc(size_t nmemb, size_t size)
 void* Realloc(void* ptr, size_t size)
 {
 	return realloc(ptr, size);
+}
+
+// ------------------------------------------------------------------
+// string.h
+// ------------------------------------------------------------------
+void* Memcpy(void* dest, const void* src, size_t n)
+{
+	return memcpy(dest, src, n);
 }
 
