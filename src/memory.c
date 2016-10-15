@@ -44,8 +44,9 @@ void* MemoryPool_allocate(
 {
 	if(self->methodTable->allocate != NULL)
 	{
-		self->methodTable->allocate(self);
+		return self->methodTable->allocate(self);
 	}
+	return NULL;
 }
 
 // ------------------------------------------------------------------
@@ -56,7 +57,7 @@ void MemoryPool_free(
 {
 	if(self->methodTable->free != NULL)
 	{
-		self->methodTable->free(self);
+		self->methodTable->free(self, ptr);
 	}
 }
 
@@ -67,8 +68,8 @@ typedef struct FixedPool
 {
 	MemoryPool interface;
 	void* memory;
-	void** used;
-	void** free;
+	bool* usedFlag;
+	void* free;
 }FixedPool;
 
 // ------------------------------------------------------------------
@@ -106,7 +107,7 @@ FixedPool* FixedPool_create(
 		return NULL;
 	}
 
-	if(! __FixedPool_initialize(self))
+	if(! __FixedPool_initialize(self, sizeofMemory, numofMemory))
 	{
 		return NULL;
 	}
@@ -138,7 +139,8 @@ static void* __FixedPool_allocate(
 	)
 {
 	FixedPool* self = (FixedPool*)interface;
-
+	(void)self;
+	return NULL;
 }
 
 // ------------------------------------------------------------------
@@ -148,7 +150,8 @@ static void __FixedPool_free(
 	)
 {
 	FixedPool* self = (FixedPool*)interface;
-
+	(void)self;
+	(void)ptr;
 }
 
 // ------------------------------------------------------------------
