@@ -27,8 +27,7 @@ bool PtrToPtrMap_add(
 	);
 void* PtrToPtrMap_find(
 	PtrToPtrMap* self,
-	void* key,
-	void* value
+	void* key
 	);
 void PtrToPtrMap_foreach(
 	PtrToPtrMap* self,

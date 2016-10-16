@@ -123,8 +123,7 @@ bool PtrToPtrMap_add(
 // ------------------------------------------------------------------
 void* PtrToPtrMap_find(
 	PtrToPtrMap* self,
-	void* key,
-	void* value
+	void* key
 	)
 {
 	size_t index;
@@ -133,7 +132,7 @@ void* PtrToPtrMap_find(
 	{
 		if(self->keys[index] == key)
 		{
-			return value;
+			return self->values[index];
 		}
 	}
 	return NULL;
