@@ -10,27 +10,27 @@ extern "C" {
 #include "facade.h"
 
 // ------------------------------------------------------------------
-// PtrToPtrMap
+// Map
 // ------------------------------------------------------------------
-typedef struct PtrToPtrMap PtrToPtrMap;
+typedef struct Map Map;
 
-PtrToPtrMap* PtrToPtrMap_create(
+Map* Map_create(
 	void
 	);
-void PtrToPtrMap_destroy(
-	PtrToPtrMap* self
+void Map_destroy(
+	Map* self
 	);
-bool PtrToPtrMap_add(
-	PtrToPtrMap* self,
+bool Map_add(
+	Map* self,
 	void* key,
 	void* value
 	);
-void* PtrToPtrMap_find(
-	PtrToPtrMap* self,
+void* Map_find(
+	Map* self,
 	void* key
 	);
-void PtrToPtrMap_foreach(
-	PtrToPtrMap* self,
+void Map_foreach(
+	Map* self,
 	void (*procedure)(void* key, void* value, void* arg),
 	void* arg
 	);

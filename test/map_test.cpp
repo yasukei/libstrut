@@ -1,35 +1,35 @@
 #include "../src/map.h"
 #include <gtest/gtest.h>
 
-TEST(PtrToPtrMap, create_destroy)
+TEST(Map, create_destroy)
 {
-	PtrToPtrMap* map;
+	Map* map;
 
 	// precondition
 
 	// target
-	map = PtrToPtrMap_create();
+	map = Map_create();
 
 	// postcondition
 	EXPECT_NE(nullptr, map);
-	PtrToPtrMap_destroy(map);
+	Map_destroy(map);
 }
 
-TEST(PtrToPtrMap, add_find)
+TEST(Map, add_find)
 {
-	PtrToPtrMap* map;
+	Map* map;
 	int key;
 	int value;
 
 	// precondition
-	map = PtrToPtrMap_create();
+	map = Map_create();
 
 	// target
-	PtrToPtrMap_add(map, (void*)&key, (void*)&value);
+	Map_add(map, (void*)&key, (void*)&value);
 
 	// postcondition
-	EXPECT_EQ(&value, PtrToPtrMap_find(map, &key));
-	PtrToPtrMap_destroy(map);
+	EXPECT_EQ(&value, Map_find(map, &key));
+	Map_destroy(map);
 }
 
 TEST(_, _)

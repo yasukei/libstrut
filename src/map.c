@@ -2,19 +2,19 @@
 #include "map.h"
 
 // ------------------------------------------------------------------
-// PtrToPtrMap
+// Map
 // ------------------------------------------------------------------
-typedef struct PtrToPtrMap
+typedef struct Map
 {
 	size_t size;
 	size_t used;
 	void** keys;
 	void** values;
-}PtrToPtrMap;
+}Map;
 
 // ------------------------------------------------------------------
-static bool __PtrToPtrMap_initialize(
-	PtrToPtrMap* self,
+static bool __Map_initialize(
+	Map* self,
 	size_t mapSize
 	)
 {
@@ -32,20 +32,20 @@ static bool __PtrToPtrMap_initialize(
 }
 
 // ------------------------------------------------------------------
-PtrToPtrMap* PtrToPtrMap_create(
+Map* Map_create(
 	void
 	)
 {
-	PtrToPtrMap* self;
+	Map* self;
 	const size_t defaultMapSize = 64;
 
-	self = Malloc(sizeof(PtrToPtrMap));
+	self = Malloc(sizeof(Map));
 	if(self == NULL)
 	{
 		return NULL;
 	}
 
-	if(! __PtrToPtrMap_initialize(self, defaultMapSize))
+	if(! __Map_initialize(self, defaultMapSize))
 	{
 		return NULL;
 	}
@@ -53,25 +53,25 @@ PtrToPtrMap* PtrToPtrMap_create(
 }
 
 // ------------------------------------------------------------------
-static void __PtrToPtrMap_finalize(
-	PtrToPtrMap* self
+static void __Map_finalize(
+	Map* self
 	)
 {
 	(void)self;
 }
 
 // ------------------------------------------------------------------
-void PtrToPtrMap_destroy(
-	PtrToPtrMap* self
+void Map_destroy(
+	Map* self
 	)
 {
-	__PtrToPtrMap_finalize(self);
+	__Map_finalize(self);
 	Free(self);
 }
 
 // ------------------------------------------------------------------
-bool __PtrToPtrMap_resize(
-	PtrToPtrMap* self,
+bool __Map_resize(
+	Map* self,
 	size_t newSize
 	)
 {
@@ -95,8 +95,8 @@ bool __PtrToPtrMap_resize(
 }
 
 // ------------------------------------------------------------------
-bool PtrToPtrMap_add(
-	PtrToPtrMap* self,
+bool Map_add(
+	Map* self,
 	void* key,
 	void* value
 	)
@@ -108,7 +108,7 @@ bool PtrToPtrMap_add(
 
 	if(self->used >= self->size)
 	{
-		if(! __PtrToPtrMap_resize(self, self->size * 2))
+		if(! __Map_resize(self, self->size * 2))
 		{
 			return false;
 		}
@@ -121,8 +121,8 @@ bool PtrToPtrMap_add(
 }
 
 // ------------------------------------------------------------------
-void* PtrToPtrMap_find(
-	PtrToPtrMap* self,
+void* Map_find(
+	Map* self,
 	void* key
 	)
 {
@@ -139,8 +139,8 @@ void* PtrToPtrMap_find(
 }
 
 // ------------------------------------------------------------------
-//void PtrToPtrMap_remove(
-//	PtrToPtrMap* self,
+//void Map_remove(
+//	Map* self,
 //	void* key,
 //	void* value
 //	)
@@ -148,8 +148,8 @@ void* PtrToPtrMap_find(
 //}
 
 // ------------------------------------------------------------------
-void PtrToPtrMap_foreach(
-	PtrToPtrMap* self,
+void Map_foreach(
+	Map* self,
 	void (*procedure)(void* key, void* value, void* arg),
 	void* arg
 	)
