@@ -1,14 +1,15 @@
+OPTION=-s
 
 all:
-	make -C src $@
+	make -C src $@ $(OPTION)
 	@echo --- finish $@ ---
 
 test: all
-	make -C test $@
+	make -C test $@ $(OPTION)
 	@echo --- finish $@ ---
 
 clean:
-	make -C src $@
-	make -C test $@
+	make -C src $@ $(OPTION)
+	make -C test $@ $(OPTION)
 	@echo --- finish $@ ---
 
