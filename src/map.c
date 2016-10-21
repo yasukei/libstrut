@@ -61,7 +61,7 @@ static void __PtrToPtrMap_finalize(
 }
 
 // ------------------------------------------------------------------
-void PtrToPtrMap_delete(
+void PtrToPtrMap_destroy(
 	PtrToPtrMap* self
 	)
 {

@@ -17,7 +17,7 @@ typedef struct PtrToPtrMap PtrToPtrMap;
 PtrToPtrMap* PtrToPtrMap_create(
 	void
 	);
-void PtrToPtrMap_delete(
+void PtrToPtrMap_destroy(
 	PtrToPtrMap* self
 	);
 bool PtrToPtrMap_add(
