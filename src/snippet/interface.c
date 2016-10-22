@@ -13,7 +13,7 @@ typedef struct Interface
 // ------------------------------------------------------------------
 struct InterfaceMethodTable
 {
-	void	(*delete)(Interface* self);
+	void	(*destroy)(Interface* self);
 };
 
 // ------------------------------------------------------------------
@@ -26,13 +26,13 @@ void Interface_setMethodTable(
 }
 
 // ------------------------------------------------------------------
-void Interface_delete(
+void Interface_destroy(
 	Interface* self
 	)
 {
-	if(self->methodTable->delete != NULL)
+	if(self->methodTable->destroy != NULL)
 	{
-		self->methodTable->delete(self);
+		self->methodTable->destroy(self);
 	}
 }
 
@@ -85,7 +85,7 @@ static void __Implement_finalize(
 }
 
 // ------------------------------------------------------------------
-static void __Implement_delete(
+static void __Implement_destroy(
 	Interface* interface
 	)
 {
@@ -98,6 +98,6 @@ static void __Implement_delete(
 // ------------------------------------------------------------------
 static const InterfaceMethodTable gImplementMethodTable =
 {
-	.delete = __Implement_delete,
+	.destroy = __Implement_destroy,
 };
 

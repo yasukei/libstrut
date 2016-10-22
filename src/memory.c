@@ -12,7 +12,7 @@ typedef struct MemoryPool
 // ------------------------------------------------------------------
 struct MemoryPoolMethodTable
 {
-	void	(*delete)(MemoryPool* self);
+	void	(*destroy)(MemoryPool* self);
 	void*	(*allocate)(MemoryPool* self);
 	void	(*free)(MemoryPool* self, void* ptr);
 };
@@ -27,13 +27,13 @@ void MemoryPool_setMethodTable(
 }
 
 // ------------------------------------------------------------------
-void MemoryPool_delete(
+void MemoryPool_destroy(
 	MemoryPool* self
 	)
 {
-	if(self->methodTable->delete != NULL)
+	if(self->methodTable->destroy != NULL)
 	{
-		self->methodTable->delete(self);
+		self->methodTable->destroy(self);
 	}
 }
 
@@ -123,7 +123,7 @@ static void __FixedPool_finalize(
 }
 
 // ------------------------------------------------------------------
-static void __FixedPool_delete(
+static void __FixedPool_destroy(
 	MemoryPool* interface
 	)
 {
@@ -157,7 +157,7 @@ static void __FixedPool_free(
 // ------------------------------------------------------------------
 static const MemoryPoolMethodTable gFixedPoolMethodTable =
 {
-	.delete		= __FixedPool_delete,
+	.destroy	= __FixedPool_destroy,
 	.allocate	= __FixedPool_allocate,
 	.free		= __FixedPool_free,
 };

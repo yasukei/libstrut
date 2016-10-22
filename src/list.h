@@ -10,7 +10,7 @@ extern "C" {
 typedef struct IntList IntList;
 
 IntList* IntList_create(void);
-void IntList_delete(IntList* self);
+void IntList_destroy(IntList* self);
 bool IntList_add(IntList* self, int value);
 bool IntList_remove(IntList* self, int value);
 bool IntList_get(IntList* self, int index);

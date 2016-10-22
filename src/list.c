@@ -31,7 +31,7 @@ ListNode* ListNode_create(
 }
 
 // ------------------------------------------------------------------
-void ListNode_delete(
+void ListNode_destroy(
 	ListNode* self
 	)
 {
@@ -109,7 +109,7 @@ List* List_create(
 }
 
 // ------------------------------------------------------------------
-void List_delete(
+void List_destroy(
 	List* self
 	)
 {
@@ -202,7 +202,7 @@ bool List_remove(
 		self->head = NULL;
 		self->tail = NULL;
 	}
-	ListNode_delete(node);
+	ListNode_destroy(node);
 	return true;
 }
 
