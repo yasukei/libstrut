@@ -32,7 +32,7 @@ TEST(Map, add_find)
 	Map_destroy(map);
 }
 
-TEST(_, _)
+TEST(Map, _)
 {
 	// precondition
 

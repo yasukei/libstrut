@@ -46,7 +46,7 @@ static void __Class_finalize(
 }
 
 // ------------------------------------------------------------------
-void Class_delete(
+void Class_destroy(
 	Class* self
 	)
 {

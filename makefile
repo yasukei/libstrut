@@ -1,4 +1,4 @@
-OPTION=-s
+#OPTION=-s
 
 all:
 	make -C src $@ $(OPTION)
