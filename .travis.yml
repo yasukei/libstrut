@@ -4,8 +4,16 @@ compiler: gcc
 
 script: make && make test
 
+before_install:
+    - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
 install:
     - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+
+env:
+    global:
+        # The next declaration is the encrypted COVERITY_SCAN_TOKEN
+        - secure: "BtLVxRyHYz9gNk1kiXn94ZCTvDZQBhDTyCQ7Kn61ItD1OLOf2XYrhe1sxI6itriZlLOtIJj1kDChzPCIkiq6qk/tQx5PT115KY7ZpI1lIOREtozmNohNfmtzmLuEsmagUBLKzGsora4VGC4SAFMVz4cGQSizjZhTF616ra+isYM9PmLRGyQm5BpvGOLrufTTds/t4YcfOnI+v7SIvjaWzqYk32IahGGRwc7n6h1fOx0cZm+yHZ7/Gxhn19X6whNic64rzznFZyJ2G+ZtAnS2z+MDgpZJIc5BpZaIGiwX/PNFOjQF5ZrHOJftUPkzMBlJSCfVmpT2kIQ+AkI5cuMqfp1ouq+J4v8lJxi+OLbuI8+nQG23aitsHi4wP8SsK/NUQ/5nFOb8LgYRhKDRq+LHhmeUNLgovUGGzmAE0Hien1hiPEp11NPq9AU/LyHamFVzLFDLyQVqOkZpDD+P7NwVGql9K0AyVGOf4EP4s42AT4vH63go3g46rMQTxHXcr0r2V9u3pdLGTgo9oPMmkFqykJLRh54X5U1XiRm8Ac0JyKYFbPfhcO9fjjdSORBDutTjgDhNVBOQnWBAXO3HEWgJhq1gShLxRcfsTGaufUiLK4LBymL8L+6IX2PK6Tg2MF+tSecZgiciIRXZsst+S9OFntmGMOvVOOOm62yEfZIo5xQ="
 
 addons:
     apt:
@@ -14,6 +22,13 @@ addons:
         packages:
             - gcc-5
             - g++-5
+	coverity_scan:
+		project:
+			name: "yasukei/libstrut"
+			description: "no description"
+		build_command_prepend:
+		build_command:   "make"
+		branch_pattern: coverity_scan
 
 # Handle git submodules yourself
 # http://stackoverflow.com/questions/15674064/github-submodule-access-rights-travis-ci
