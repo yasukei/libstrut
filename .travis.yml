@@ -1,8 +1,14 @@
-language: c
+language: c++
 
 compiler: gcc
 
 script: make && make test
+
+addons:
+    apt:
+        packages:
+            - gcc-4.8
+            - g++-4.8
 
 # Handle git submodules yourself
 # http://stackoverflow.com/questions/15674064/github-submodule-access-rights-travis-ci
