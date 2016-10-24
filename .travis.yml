@@ -1,6 +1,12 @@
 language: c++
 compiler: gcc
 
+branches:
+    only:
+        - master
+        - dev
+        - coverity_scan
+
 env:
     global:
         # The next declaration is the encrypted COVERITY_SCAN_TOKEN
