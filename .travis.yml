@@ -34,7 +34,7 @@ addons:
             name: "yasukei/libstrut"
             description: "aaa"
         notification_email: kei_yasuda@outlook.com
-        build_command_prepend: "make clean"
+        build_command_prepend: "cov-configure --comptype gcc --compiler `which ${CC}`; cov-configure --comptype g++ --compiler `which ${CXX}`; make clean"
         build_command: "make"
         branch_pattern: coverity_scan
 
