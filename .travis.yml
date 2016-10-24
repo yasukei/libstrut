@@ -2,3 +2,12 @@ language: c
 
 compiler: gcc
 
+# Handle git submodules yourself
+# http://stackoverflow.com/questions/15674064/github-submodule-access-rights-travis-ci
+git:
+    submodules: false
+
+before_install:
+    - sed -i  's/git@github.com:/https:\/\/github.com\//' .gitmodules
+    - git submodule update --init --recursive
+
