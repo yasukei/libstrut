@@ -5,6 +5,10 @@ compiler: gcc
 script: make && make test
 
 before_install:
+    # http://stackoverflow.com/questions/15674064/github-submodule-access-rights-travis-ci
+    - sed -i  's/git@github.com:/https:\/\/github.com\//' .gitmodules
+    - git submodule update --init --recursive
+    # For Coverity
     - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 install:
@@ -25,17 +29,12 @@ addons:
     coverity_scan:
         project:
             name: "yasukei/libstrut"
-            description: "no description"
-        build_command_prepend:
+            description: "aaa"
+        build_command_prepend: "make clean"
         build_command: "make"
         branch_pattern: coverity_scan
 
 # Handle git submodules yourself
-# http://stackoverflow.com/questions/15674064/github-submodule-access-rights-travis-ci
 git:
     submodules: false
-
-before_install:
-    - sed -i  's/git@github.com:/https:\/\/github.com\//' .gitmodules
-    - git submodule update --init --recursive
 
