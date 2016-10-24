@@ -1,8 +1,11 @@
+sudo: false
 language: c++
-
 compiler: gcc
 
 script: make && make test
+
+install:
+    - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
 
 addons:
     apt:
