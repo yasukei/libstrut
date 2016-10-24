@@ -2,6 +2,8 @@ language: c
 
 compiler: gcc
 
+script: make && make test
+
 # Handle git submodules yourself
 # http://stackoverflow.com/questions/15674064/github-submodule-access-rights-travis-ci
 git:
