@@ -9,8 +9,8 @@ addons:
         sources:
             - ubuntu-toolchain-r-test
         packages:
-            - gcc-4.8
-            - g++-4.8
+            - gcc-5
+            - g++-5
 
 # Handle git submodules yourself
 # http://stackoverflow.com/questions/15674064/github-submodule-access-rights-travis-ci
