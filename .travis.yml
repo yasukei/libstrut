@@ -2,7 +2,7 @@ language: c++
 compiler: gcc
 
 script:
-    - if  [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then make && make test ; fi make &&
+    - if  [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then make && make test ; fi
 
 before_install:
     # http://stackoverflow.com/questions/15674064/github-submodule-access-rights-travis-ci
