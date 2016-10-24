@@ -22,13 +22,13 @@ addons:
         packages:
             - gcc-5
             - g++-5
-	coverity_scan:
-		project:
-			name: "yasukei/libstrut"
-			description: "no description"
-		build_command_prepend:
-		build_command:   "make"
-		branch_pattern: coverity_scan
+    coverity_scan:
+        project:
+            name: "yasukei/libstrut"
+            description: "no description"
+        build_command_prepend:
+        build_command: "make"
+        branch_pattern: coverity_scan
 
 # Handle git submodules yourself
 # http://stackoverflow.com/questions/15674064/github-submodule-access-rights-travis-ci
