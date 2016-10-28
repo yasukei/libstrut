@@ -1,4 +1,4 @@
-#include "../src/map.h"
+#include <map.h>
 #include <gtest/gtest.h>
 
 TEST(Map, create_destroy)
