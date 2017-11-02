@@ -5,15 +5,51 @@
 extern "C" {
 #endif // __cplusplus
 
-#include <stdbool.h>
+#include "facade.h"
 
-typedef struct IntList IntList;
+typedef struct List List;
 
-IntList* IntList_create(void);
-void IntList_destroy(IntList* self);
-bool IntList_add(IntList* self, int value);
-bool IntList_remove(IntList* self, int value);
-bool IntList_get(IntList* self, int index);
+List* List_create(
+	void
+	);
+void List_destroy(
+	List* self
+	);
+bool List_addToHead(
+	List* self,
+	void* object
+	);
+bool List_addToTail(
+	List* self,
+	void* object
+	);
+void* List_removeFromHead(
+	List* self
+	);
+void* List_removeFromTail(
+	List* self
+	);
+bool List_insert(
+	List* self,
+	void* object,
+	size_t index
+	);
+void* List_get(
+	List* self,
+	size_t index
+	);
+size_t List_getNumofObjects(
+	List* self
+	);
+bool List_remove(
+	List* self,
+	void* object
+	);
+void List_foreach(
+	List* self,
+	void (*procedure)(void* object, void* arg),
+	void* arg
+	);
 
 
 #ifdef __cplusplus

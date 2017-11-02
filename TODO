@@ -2,10 +2,11 @@
 []	pool
 [x]	map
 []	tree
-[]	hash
+[x]	hash
 
-[]	code checker
+[]	coverity
 []	astyle
 []	test
 []	code coverage
+[x]	travis ci
 

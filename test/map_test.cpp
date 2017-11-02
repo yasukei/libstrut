@@ -11,7 +11,7 @@ TEST(Map, create_destroy)
 	map = Map_create();
 
 	// postcondition
-	EXPECT_NE(nullptr, map);
+	EXPECT_NE((void*)NULL, map);
 	Map_destroy(map);
 }
 

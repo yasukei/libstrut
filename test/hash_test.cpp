@@ -11,7 +11,7 @@ TEST(Hash, create_destroy)
 	hash = Hash_create();
 
 	// postcondition
-	EXPECT_NE(nullptr, hash);
+	EXPECT_NE((void*)NULL, hash);
 	Hash_destroy(hash);
 }
 

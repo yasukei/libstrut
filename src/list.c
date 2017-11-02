@@ -8,13 +8,27 @@
 typedef struct ListNode ListNode;
 struct ListNode
 {
-	void* valuePtr;
-	ListNode* next;
+	void* object;
+
+	ListNode* next;	// for List
+	ListNode* prev;	// for List
 };
 
 // ------------------------------------------------------------------
+static bool __ListNode_initialize(
+	ListNode* self,
+	void* object
+	)
+{
+	self->object = object;
+	self->next = NULL;
+	self->prev = NULL;
+	return true;
+}
+
+// ------------------------------------------------------------------
 ListNode* ListNode_create(
-	void* valuePtr
+	void* object
 	)
 {
 	ListNode* self;
@@ -25,8 +39,10 @@ ListNode* ListNode_create(
 		return NULL;
 	}
 
-	self->valuePtr = valuePtr;
-	self->next = NULL;
+	if(! __ListNode_initialize(self, object))
+	{
+		return NULL;
+	}
 	return self;
 }
 
@@ -39,36 +55,30 @@ void ListNode_destroy(
 }
 
 // ------------------------------------------------------------------
-void* ListNode_getValuePtr(
+void* ListNode_getObject(
 	ListNode* self
 	)
 {
-	if(self == NULL)
-	{
-		return NULL;
-	}
-
-	return self->valuePtr;
+	return self->object;
 }
 
 // ------------------------------------------------------------------
 // List
 // ------------------------------------------------------------------
-typedef int (*ListValueComparator)(const void* lhs, const void* rhs);
+typedef int (*ListObjectComparator)(const void* lhs, const void* rhs);
 
 typedef struct List List;
 struct List
 {
-	int numofNodes;
+	size_t numofNodes;
 	ListNode* head;
 	ListNode* tail;
-	ListValueComparator comparator;
+	ListObjectComparator comparator;
 };
-
 
 // ------------------------------------------------------------------
 List* List_createWithComparator(
-	ListValueComparator comparator
+	ListObjectComparator comparator
 	)
 {
 	List* self;
@@ -122,14 +132,19 @@ void List_destroy(
 }
 
 // ------------------------------------------------------------------
-bool List_add(
+bool List_addToHead(
 	List* self,
-	void* valuePtr
+	void* object
 	)
 {
 	ListNode* node;
-	
-	node = ListNode_create(valuePtr);
+
+	if(self == NULL)
+	{
+		return false;
+	}
+
+	node = ListNode_create(object);
 	if(node == NULL)
 	{
 		return false;
@@ -139,22 +154,138 @@ bool List_add(
 	{
 		self->head = node;
 		self->tail = node;
+		node->next = NULL;
+	}
+	else
+	{
+		self->head->prev = node;
+		node->next = self->head;
+		self->head = node;
+	}
+	node->prev = NULL;
+	self->numofNodes += 1;
+
+	return true;
+}
+
+// ------------------------------------------------------------------
+bool List_addToTail(
+	List* self,
+	void* object
+	)
+{
+	ListNode* node;
+
+	if(self == NULL)
+	{
+		return false;
+	}
+
+	node = ListNode_create(object);
+	if(node == NULL)
+	{
+		return false;
+	}
+
+	if(self->numofNodes == 0)
+	{
+		self->head = node;
+		self->tail = node;
+		node->prev = NULL;
 	}
 	else
 	{
 		self->tail->next = node;
+		node->prev = self->tail;
 		self->tail = node;
 	}
 	node->next = NULL;
 	self->numofNodes += 1;
 
-	return false;
+	return true;
+}
+
+// ------------------------------------------------------------------
+bool List_insert(
+	List* self,
+	void* object,
+	size_t index
+	)
+{
+	size_t i;
+	ListNode* node;
+	ListNode* newNode;
+	ListNode* prevNode;
+
+	if(index > self->numofNodes)
+	{
+		return false;
+	}
+
+	if(index == 0)
+	{
+		return List_addToHead(self, object);
+	}
+	else if(index == self->numofNodes)
+	{
+		return List_addToTail(self, object);
+	}
+
+	newNode = ListNode_create(object);
+	if(newNode == NULL)
+	{
+		return false;
+	}
+
+	node = self->head;
+	for(i = 0; i < index; i++)
+	{
+		node = node->next;
+	}
+	prevNode = node->prev;
+
+	prevNode->next = newNode;
+	newNode->prev = prevNode;
+	newNode->next = node;
+	node->prev = newNode;
+	self->numofNodes += 1;
+	return true;
+}
+
+// ------------------------------------------------------------------
+void* List_get(
+	List* self,
+	size_t index
+	)
+{
+	ListNode* node;
+	size_t i;
+
+	if(index >= self->numofNodes)
+	{
+		return NULL;
+	}
+
+	node = self->head;
+	for(i = 0; i < index; i++)
+	{
+		node = node->next;
+	}
+	return ListNode_getObject(node);
+}
+
+// ------------------------------------------------------------------
+size_t List_getNumofObjects(
+	List* self
+	)
+{
+	return self->numofNodes;
 }
 
 // ------------------------------------------------------------------
 static ListNode* __List_find(
 	List* self,
-	void* valuePtr,
+	void* object,
 	ListNode** prevNode	// out
 	)
 {
@@ -165,7 +296,7 @@ static ListNode* __List_find(
 	
 	do
 	{
-		if(self->comparator(valuePtr, ListNode_getValuePtr(node)) == 0)
+		if(self->comparator(object, ListNode_getObject(node)) == 0)
 		{
 			break;
 		}
@@ -180,7 +311,7 @@ static ListNode* __List_find(
 // ------------------------------------------------------------------
 bool List_remove(
 	List* self,
-	void* valuePtr
+	void* object
 	)
 {
 	ListNode* node;
@@ -191,7 +322,7 @@ bool List_remove(
 		return NULL;
 	}
 
-	node = __List_find(self, valuePtr, &prevNode);
+	node = __List_find(self, object, &prevNode);
 	if(node == NULL)
 	{
 		return false;
@@ -207,30 +338,68 @@ bool List_remove(
 }
 
 // ------------------------------------------------------------------
-void* List_get(
-	List* self,
-	int index
+void* List_removeFromHead(
+	List* self
 	)
 {
 	ListNode* node;
-	int i;
+	void* object;
 
 	if(self == NULL)
 	{
 		return NULL;
 	}
-	if(self->numofNodes <= index)
+	if(self->numofNodes == 0)
 	{
 		return NULL;
 	}
 
-	node = self->head;
-	for(i = 0; i < index; i++)
+	if(self->numofNodes == 1)
 	{
-		node = node->next;
+		node = self->head;
+		self->head = NULL;
+		self->tail = NULL;
 	}
-	return ListNode_getValuePtr(node);
+	else
+	{
+		node = self->head;
+		self->head = node->next;
+	}
+	object = ListNode_getObject(node);
+	ListNode_destroy(node);
+	return object;
 }
 
+// ------------------------------------------------------------------
+void* List_removeFromTail(
+	List* self
+	)
+{
+	ListNode* node;
+	void* object;
 
+	if(self == NULL)
+	{
+		return NULL;
+	}
+	if(self->numofNodes == 0)
+	{
+		return NULL;
+	}
+
+	if(self->numofNodes == 1)
+	{
+		node = self->tail;
+		self->head = NULL;
+		self->tail = NULL;
+	}
+	else
+	{
+		node = self->tail;
+		self->tail = node->prev;
+	}
+	object = ListNode_getObject(node);
+	ListNode_destroy(node);
+	return object;
+}
 
