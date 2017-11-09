@@ -1,150 +1,88 @@
 #include "facade.h"
 #include "list.h"
-
+#include "memory.h"
+#include "MemoryFactory.h"
 
 // ------------------------------------------------------------------
-// ListNode
+// BidirectionalListNode
 // ------------------------------------------------------------------
-typedef struct ListNode ListNode;
-struct ListNode
+typedef struct BidirectionalListNode BidirectionalListNode;
+struct BidirectionalListNode
 {
 	void* object;
 
-	ListNode* next;	// for List
-	ListNode* prev;	// for List
+	BidirectionalListNode* next;	// for BidirectionalList
+	BidirectionalListNode* prev;	// for BidirectionalList
 };
 
 // ------------------------------------------------------------------
-static bool __ListNode_initialize(
-	ListNode* self,
+static void __BidirectionalListNode_initialize(
+	BidirectionalListNode* self,
 	void* object
-	)
+)
 {
 	self->object = object;
 	self->next = NULL;
 	self->prev = NULL;
-	return true;
 }
 
 // ------------------------------------------------------------------
-ListNode* ListNode_create(
+BidirectionalListNode* BidirectionalListNode_create(
+	Memory* memory,
 	void* object
-	)
+)
 {
-	ListNode* self;
-   
-	self = Malloc(sizeof(ListNode));
+	BidirectionalListNode* self;
+
+	self = Memory_malloc(memory, sizeof(BidirectionalListNode));
 	if(self == NULL)
 	{
 		return NULL;
 	}
 
-	if(! __ListNode_initialize(self, object))
-	{
-		return NULL;
-	}
+	__BidirectionalListNode_initialize(self, object);
 	return self;
 }
 
 // ------------------------------------------------------------------
-void ListNode_destroy(
-	ListNode* self
-	)
+void BidirectionalListNode_destroy(
+	BidirectionalListNode* self,
+	Memory* memory
+)
 {
-	Free(self);
+	Memory_free(memory, self);
 }
 
 // ------------------------------------------------------------------
-void* ListNode_getObject(
-	ListNode* self
-	)
+void* BidirectionalListNode_getObject(
+	BidirectionalListNode* self
+)
 {
 	return self->object;
 }
 
 // ------------------------------------------------------------------
-// List
+// BidirectionalList
 // ------------------------------------------------------------------
-typedef int (*ListObjectComparator)(const void* lhs, const void* rhs);
-
-typedef struct List List;
-struct List
+typedef struct BidirectionalList BidirectionalList;
+struct BidirectionalList
 {
+	List super;
 	size_t numofNodes;
-	ListNode* head;
-	ListNode* tail;
-	ListObjectComparator comparator;
+	BidirectionalListNode* head;
+	BidirectionalListNode* tail;
+	Memory* memory;
 };
 
 // ------------------------------------------------------------------
-List* List_createWithComparator(
-	ListObjectComparator comparator
-	)
-{
-	List* self;
-
-	self = Malloc(sizeof(List));
-
-	self->numofNodes = 0;
-	self->head = NULL;
-	self->tail = NULL;
-	self->comparator = comparator;
-
-	return self;
-}
-
-// ------------------------------------------------------------------
-static int __List_compare(
-	const void* lhs,
-	const void* rhs
-	)
-{
-	if(lhs > rhs)
-	{
-		return 1;
-	}
-	else if(lhs < rhs)
-	{
-		return -1;
-	}
-	return 0;
-}
-
-// ------------------------------------------------------------------
-List* List_create(
-	void
-	)
-{
-	return List_createWithComparator(__List_compare);
-}
-
-// ------------------------------------------------------------------
-void List_destroy(
-	List* self
-	)
-{
-	if(self == NULL)
-	{
-		return;
-	}
-
-	Free(self);
-}
-
-// ------------------------------------------------------------------
-bool List_addToHead(
-	List* self,
+static bool BidirectionalList_addToHead(
+	BidirectionalList* self,
 	void* object
-	)
+)
 {
-	ListNode* node;
+	BidirectionalListNode* node;
 
-	if(self == NULL)
-	{
-		return false;
-	}
-
-	node = ListNode_create(object);
+	node = BidirectionalListNode_create(self->memory, object);
 	if(node == NULL)
 	{
 		return false;
@@ -169,19 +107,14 @@ bool List_addToHead(
 }
 
 // ------------------------------------------------------------------
-bool List_addToTail(
-	List* self,
+static bool BidirectionalList_addToTail(
+	BidirectionalList* self,
 	void* object
-	)
+)
 {
-	ListNode* node;
+	BidirectionalListNode* node;
 
-	if(self == NULL)
-	{
-		return false;
-	}
-
-	node = ListNode_create(object);
+	node = BidirectionalListNode_create(self->memory, object);
 	if(node == NULL)
 	{
 		return false;
@@ -206,16 +139,17 @@ bool List_addToTail(
 }
 
 // ------------------------------------------------------------------
-bool List_insert(
-	List* self,
+bool BidirectionalList_insert(
+	List* super,
 	void* object,
 	size_t index
-	)
+)
 {
+	BidirectionalList* self = (BidirectionalList*)super;
 	size_t i;
-	ListNode* node;
-	ListNode* newNode;
-	ListNode* prevNode;
+	BidirectionalListNode* node;
+	BidirectionalListNode* newNode;
+	BidirectionalListNode* prevNode;
 
 	if(index > self->numofNodes)
 	{
@@ -224,14 +158,14 @@ bool List_insert(
 
 	if(index == 0)
 	{
-		return List_addToHead(self, object);
+		return BidirectionalList_addToHead(self, object);
 	}
 	else if(index == self->numofNodes)
 	{
-		return List_addToTail(self, object);
+		return BidirectionalList_addToTail(self, object);
 	}
 
-	newNode = ListNode_create(object);
+	newNode = BidirectionalListNode_create(self->memory, object);
 	if(newNode == NULL)
 	{
 		return false;
@@ -253,102 +187,13 @@ bool List_insert(
 }
 
 // ------------------------------------------------------------------
-void* List_get(
-	List* self,
-	size_t index
-	)
+static void* BidirectionalList_removeFromHead(
+	BidirectionalList* self
+)
 {
-	ListNode* node;
-	size_t i;
-
-	if(index >= self->numofNodes)
-	{
-		return NULL;
-	}
-
-	node = self->head;
-	for(i = 0; i < index; i++)
-	{
-		node = node->next;
-	}
-	return ListNode_getObject(node);
-}
-
-// ------------------------------------------------------------------
-size_t List_getNumofObjects(
-	List* self
-	)
-{
-	return self->numofNodes;
-}
-
-// ------------------------------------------------------------------
-static ListNode* __List_find(
-	List* self,
-	void* object,
-	ListNode** prevNode	// out
-	)
-{
-	ListNode* node;
-
-	*prevNode = NULL;
-	node = self->head;
-	
-	do
-	{
-		if(self->comparator(object, ListNode_getObject(node)) == 0)
-		{
-			break;
-		}
-		*prevNode = node;
-		node = node->next;
-	}
-	while(node != NULL);
-
-	return node;
-}
-
-// ------------------------------------------------------------------
-bool List_remove(
-	List* self,
-	void* object
-	)
-{
-	ListNode* node;
-	ListNode* prevNode;
-
-	if(self == NULL)
-	{
-		return NULL;
-	}
-
-	node = __List_find(self, object, &prevNode);
-	if(node == NULL)
-	{
-		return false;
-	}
-
-	if(node == self->head)
-	{
-		self->head = NULL;
-		self->tail = NULL;
-	}
-	ListNode_destroy(node);
-	return true;
-}
-
-// ------------------------------------------------------------------
-void* List_removeFromHead(
-	List* self
-	)
-{
-	ListNode* node;
+	BidirectionalListNode* node;
 	void* object;
 
-	if(self == NULL)
-	{
-		return NULL;
-	}
 	if(self->numofNodes == 0)
 	{
 		return NULL;
@@ -365,23 +210,20 @@ void* List_removeFromHead(
 		node = self->head;
 		self->head = node->next;
 	}
-	object = ListNode_getObject(node);
-	ListNode_destroy(node);
+	object = BidirectionalListNode_getObject(node);
+	BidirectionalListNode_destroy(node, self->memory);
+	self->numofNodes -= 1;
 	return object;
 }
 
 // ------------------------------------------------------------------
-void* List_removeFromTail(
-	List* self
-	)
+static void* BidirectionalList_removeFromTail(
+	BidirectionalList* self
+)
 {
-	ListNode* node;
+	BidirectionalListNode* node;
 	void* object;
 
-	if(self == NULL)
-	{
-		return NULL;
-	}
 	if(self->numofNodes == 0)
 	{
 		return NULL;
@@ -398,8 +240,154 @@ void* List_removeFromTail(
 		node = self->tail;
 		self->tail = node->prev;
 	}
-	object = ListNode_getObject(node);
-	ListNode_destroy(node);
+	object = BidirectionalListNode_getObject(node);
+	BidirectionalListNode_destroy(node, self->memory);
+	self->numofNodes -= 1;
 	return object;
+}
+
+// ------------------------------------------------------------------
+void* BidirectionalList_remove(
+	List* super,
+	size_t index
+)
+{
+	BidirectionalList* self = (BidirectionalList*)super;
+	void* object;
+	BidirectionalListNode* node;
+	BidirectionalListNode* prevNode;
+	BidirectionalListNode* nextNode;
+	size_t i;
+
+	if(index >= self->numofNodes)
+	{
+		return NULL;
+	}
+
+	if(index == 0)
+	{
+		return BidirectionalList_removeFromHead(self);
+	}
+	else if(index == (self->numofNodes - 1))
+	{
+		return BidirectionalList_removeFromTail(self);
+	}
+
+	node = self->head;
+	for(i = 0; i < index; i++)
+	{
+		node = node->next;
+	}
+	prevNode = node->prev;
+	nextNode = node->next;
+
+	prevNode->next = nextNode;
+	nextNode->prev = prevNode;
+	object = BidirectionalListNode_getObject(node);
+	BidirectionalListNode_destroy(node, self->memory);
+	self->numofNodes -= 1;
+	return object;
+}
+
+// ------------------------------------------------------------------
+void* BidirectionalList_getObject(
+	List* super,
+	size_t index
+)
+{
+	BidirectionalList* self = (BidirectionalList*)super;
+	BidirectionalListNode* node;
+	size_t i;
+
+	if(index >= self->numofNodes)
+	{
+		return NULL;
+	}
+
+	node = self->head;
+	for(i = 0; i < index; i++)
+	{
+		node = node->next;
+	}
+	return BidirectionalListNode_getObject(node);
+}
+
+// ------------------------------------------------------------------
+size_t BidirectionalList_getNumofObjects(
+	List* super
+)
+{
+	BidirectionalList* self = (BidirectionalList*)super;
+	return self->numofNodes;
+}
+
+// ------------------------------------------------------------------
+void BidirectionalList_foreach(
+	List* super,
+	void (*procedure)(void* object, void* arg),
+	void* arg
+)
+{
+	BidirectionalList* self = (BidirectionalList*)super;
+	BidirectionalListNode* node;
+
+	for(node = self->head; node != NULL; node = node->next)
+	{
+		procedure(BidirectionalListNode_getObject(node), arg);
+	}
+}
+
+// ------------------------------------------------------------------
+void BidirectionalList_destroy(
+	List* super
+)
+{
+	BidirectionalList* self = (BidirectionalList*)super;
+	Memory* memory = self->memory;
+
+	Memory_free(memory, self);
+	MemoryFactory_destroyMemory(self->memory);
+}
+
+// ------------------------------------------------------------------
+BidirectionalList* BidirectionalList_create(
+	void
+)
+{
+	Memory* memory = MemoryFactory_createOSMemory();
+	BidirectionalList* self;
+
+	self = Memory_malloc(memory, sizeof(BidirectionalList));
+
+	self->numofNodes = 0;
+	self->head = NULL;
+	self->tail = NULL;
+	self->memory = memory;
+	self->super.insert = BidirectionalList_insert;
+	self->super.remove = BidirectionalList_remove;
+	self->super.getObject = BidirectionalList_getObject;
+	self->super.getNumofObjects = BidirectionalList_getNumofObjects;
+	self->super.foreach = BidirectionalList_foreach;
+	self->super.destroy = BidirectionalList_destroy;
+
+	return self;
+}
+
+// ------------------------------------------------------------------
+// ListFactory
+// ------------------------------------------------------------------
+List* ListFactory_createBidirectionalList(
+	void
+	)
+{
+	return (List*)BidirectionalList_create();
+}
+
+// ------------------------------------------------------------------
+void ListFactory_destroyList(
+	List* list
+	)
+{
+	List_destroy(list);
 }
 

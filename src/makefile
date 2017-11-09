@@ -1,7 +1,7 @@
 
 TARGET_LIB=libstrut.so
 
-CFLAGS= -fPIC -Wall -Wextra
+CFLAGS= -fPIC -Wall -Wextra -g
 LDFLAGS= -shared
 
 OBJECTS=$(patsubst %.c, %.o, $(wildcard *.c))

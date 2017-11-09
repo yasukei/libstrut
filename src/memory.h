@@ -17,6 +17,7 @@ struct Memory
 {
 	void*	(*malloc)(Memory* self, size_t size);
 	void	(*free)(Memory* self, void* ptr);
+	void	(*destroy)(Memory* self);
 };
 
 // ------------------------------------------------------------------
@@ -35,6 +36,14 @@ static inline void Memory_free(
 	)
 {
 	self->free(self, ptr);
+}
+
+// ------------------------------------------------------------------
+static inline void Memory_destroy(
+	Memory* self
+	)
+{
+	self->destroy(self);
 }
 
 #ifdef __cplusplus

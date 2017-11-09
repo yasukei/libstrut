@@ -7,49 +7,75 @@ extern "C" {
 
 #include "facade.h"
 
+// ------------------------------------------------------------------
+// List
+// ------------------------------------------------------------------
 typedef struct List List;
 
-List* List_create(
-	void
-	);
-void List_destroy(
-	List* self
-	);
-bool List_addToHead(
-	List* self,
-	void* object
-	);
-bool List_addToTail(
-	List* self,
-	void* object
-	);
-void* List_removeFromHead(
-	List* self
-	);
-void* List_removeFromTail(
-	List* self
-	);
-bool List_insert(
+// ------------------------------------------------------------------
+struct List
+{
+	bool	(*insert)(List* self, void* object, size_t index);
+	void*	(*remove)(List* self, size_t index);
+	void*	(*getObject)(List* self, size_t index);
+	size_t	(*getNumofObjects)(List* self);
+	void	(*foreach)(List* self, void (*procedure)(void* object, void* arg), void* arg);
+	void	(*destroy)(List* self);
+};
+
+// ------------------------------------------------------------------
+static inline bool List_insert(
 	List* self,
 	void* object,
 	size_t index
-	);
-void* List_get(
+	)
+{
+	return self->insert(self, object, index);
+}
+
+// ------------------------------------------------------------------
+static inline void* List_remove(
 	List* self,
 	size_t index
-	);
-size_t List_getNumofObjects(
-	List* self
-	);
-bool List_remove(
+	)
+{
+	return self->remove(self, index);
+}
+
+// ------------------------------------------------------------------
+static inline void* List_getObject(
 	List* self,
-	void* object
-	);
-void List_foreach(
+	size_t index
+	)
+{
+	return self->getObject(self, index);
+}
+
+// ------------------------------------------------------------------
+static inline size_t List_getNumofObjects(
+	List* self
+	)
+{
+	return self->getNumofObjects(self);
+}
+
+// ------------------------------------------------------------------
+static inline void List_foreach(
 	List* self,
 	void (*procedure)(void* object, void* arg),
 	void* arg
-	);
+	)
+{
+	self->foreach(self, procedure, arg);
+}
+
+// ------------------------------------------------------------------
+static inline void List_destroy(
+	List* self
+	)
+{
+	self->destroy(self);
+}
 
 
 #ifdef __cplusplus

@@ -1,4 +1,5 @@
 #include <list.h>
+#include <ListFactory.h>
 #include <gtest/gtest.h>
 
 // --------------------------------------------------------
@@ -9,56 +10,37 @@ TEST(List, create_destroy)
 	// precondition
 
 	// target
-	list = List_create();
+	list = ListFactory_createBidirectionalList();
 
 	// postcondition
 	EXPECT_NE((void*)NULL, list);
-	List_destroy(list);
-}
-
-// --------------------------------------------------------
-TEST(List, self_is_null)
-{
-	List* list;
-	int dummy;
-
-	// precondition
-	list = NULL;
-
-	// target
-	List_destroy(list);
-	EXPECT_FALSE(List_addToHead(list, &dummy));
-	EXPECT_FALSE(List_addToTail(list, &dummy));
-	EXPECT_EQ((void*)NULL, List_removeFromHead(list));
-	EXPECT_EQ((void*)NULL, List_removeFromTail(list));
-
-	// postcondition
+	ListFactory_destroyList(list);
 }
 
 // --------------------------------------------------------
 class List_test : public ::testing::TestWithParam<size_t>
-			//std::tuple< BYTE*, size_t >
-{ 
-protected:
-	List* list;
-	size_t num;
-	int* objects;
+//std::tuple< BYTE*, size_t >
+{
+	protected:
+		List* list;
+		size_t num;
+		int* objects;
 
-	virtual void SetUp()
-	{
-		list = List_create();
-		num = GetParam();
-		objects = (int*)malloc(sizeof(int) * num);
-	}
-	virtual void TearDown()
-	{
-		free(objects);
-		List_destroy(list);
-	}
+		virtual void SetUp()
+		{
+			list = ListFactory_createBidirectionalList();
+			num = GetParam();
+			objects = (int*)malloc(sizeof(int) * num);
+		}
+		virtual void TearDown()
+		{
+			free(objects);
+			ListFactory_destroyList(list);
+		}
 };
 
 // --------------------------------------------------------
-TEST_P(List_test, addToHead_removeFromTail)
+TEST_P(List_test, insert_remove)
 {
 
 	// precondition
@@ -66,113 +48,24 @@ TEST_P(List_test, addToHead_removeFromTail)
 	// target
 	for(size_t i = 0; i < num; i++)
 	{
-		EXPECT_TRUE(List_addToHead(list, &objects[i]));
+		EXPECT_TRUE(List_insert(list, &objects[i], i));
 	}
 
 	// postcondition
 	for(size_t i = 0; i < num; i++)
 	{
-		EXPECT_EQ(&objects[i], List_removeFromTail(list));
+		EXPECT_EQ(&objects[i], List_remove(list, 0));
 	}
 }
 
 // --------------------------------------------------------
-TEST_P(List_test, addToHead_removeFromHead)
-{
-
-	// precondition
-
-	// target
-	for(size_t i = 0; i < num; i++)
-	{
-		EXPECT_TRUE(List_addToHead(list, &objects[i]));
-	}
-
-	// postcondition
-	for(size_t i = num; i > 0; i--)
-	{
-		EXPECT_EQ(&objects[i-1], List_removeFromHead(list));
-	}
-}
-
-// --------------------------------------------------------
-TEST_P(List_test, addToTail_removeFromHead)
-{
-
-	// precondition
-
-	// target
-	for(size_t i = 0; i < num; i++)
-	{
-		EXPECT_TRUE(List_addToTail(list, &objects[i]));
-	}
-
-	// postcondition
-	for(size_t i = 0; i < num; i++)
-	{
-		EXPECT_EQ(&objects[i], List_removeFromHead(list));
-	}
-}
-
-// --------------------------------------------------------
-TEST_P(List_test, addToTail_removeFromTail)
-{
-
-	// precondition
-
-	// target
-	for(size_t i = 0; i < num; i++)
-	{
-		EXPECT_TRUE(List_addToTail(list, &objects[i]));
-	}
-
-	// postcondition
-	for(size_t i = num; i > 0; i--)
-	{
-		EXPECT_EQ(&objects[i-1], List_removeFromTail(list));
-	}
-}
-
-// --------------------------------------------------------
-TEST_P(List_test, getNumofObjects_afterAddToHead)
+TEST_P(List_test, getNumofObjects)
 {
 
 	// precondition
 	for(size_t i = 0; i < num; i++)
 	{
-		EXPECT_TRUE(List_addToHead(list, &objects[i]));
-	}
-
-	// target
-	EXPECT_EQ(num, List_getNumofObjects(list));
-
-	// postcondition
-}
-
-// --------------------------------------------------------
-TEST_P(List_test, getNumofObjects_afterAddToTail)
-{
-
-	// precondition
-	for(size_t i = 0; i < num; i++)
-	{
-		EXPECT_TRUE(List_addToTail(list, &objects[i]));
-	}
-
-	// target
-	EXPECT_EQ(num, List_getNumofObjects(list));
-
-	// postcondition
-}
-
-// --------------------------------------------------------
-TEST_P(List_test, getNumofObjects_afterRemoveFromHead)
-{
-
-	// precondition
-	for(size_t i = 0; i < num; i++)
-	{
-		EXPECT_TRUE(List_addToTail(list, &objects[i]));
+		EXPECT_TRUE(List_insert(list, &objects[i], i));
 	}
 
 	// target
@@ -213,7 +106,7 @@ INSTANTIATE_TEST_CASE_P(
 //	int value2 = 20;
 //
 //	// precondition
-//	list = List_create();
+//	list = ListFactory_createBidirectionalList();
 //	EXPECT_TRUE(List_add(list, (void*)&key1, (void*)&value1));
 //	EXPECT_TRUE(List_add(list, (void*)&key2, (void*)&value2));
 //
@@ -221,6 +114,6 @@ INSTANTIATE_TEST_CASE_P(
 //	List_foreach(list, __testListForeach, &gTestArg);
 //
 //	// postcondition
-//	List_destroy(list);
+//	ListFactory_destroy(list);
 //}
 

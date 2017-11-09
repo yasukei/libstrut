@@ -1,4 +1,6 @@
+#include "facade.h"
 #include "memory.h"
+#include "MemoryFactory.h"
 
 // ------------------------------------------------------------------
 // OSMemory
@@ -32,12 +34,21 @@ void OSMemory_free(
 }
 
 // ------------------------------------------------------------------
+void OSMemory_destroy(
+	Memory* super
+)
+{
+	UNUSED(super);
+}
+
+// ------------------------------------------------------------------
 static const OSMemory gOSMemory =
 {
 	.super =
 	{
-		.malloc = OSMemory_malloc,
-		.free = OSMemory_free,
+		.malloc		= OSMemory_malloc,
+		.free		= OSMemory_free,
+		.destroy	= OSMemory_destroy,
 	},
 };
 
@@ -50,10 +61,20 @@ OSMemory* OSMemory_create(
 }
 
 // ------------------------------------------------------------------
-void OSMemory_destroy(
-	OSMemory* self
+// MemoryFactory
+// ------------------------------------------------------------------
+Memory* MemoryFactory_createOSMemory(
+	void
 )
 {
-	UNUSED(self);
+	return (Memory*)OSMemory_create();
+}
+
+// ------------------------------------------------------------------
+void MemoryFactory_destroyMemory(
+	Memory* memory
+)
+{
+	return Memory_destroy(memory);
 }
 
