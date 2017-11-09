@@ -10,6 +10,8 @@ extern "C" {
 #include <stddef.h>
 #include <stdbool.h>
 
+#define UNUSED(variable)	(void)(variable)
+
 // ------------------------------------------------------------------
 // stdlib.h
 // ------------------------------------------------------------------
