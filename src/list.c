@@ -346,7 +346,7 @@ void BidirectionalList_destroy(
 	Memory* memory = self->memory;
 
 	Memory_free(memory, self);
-	MemoryFactory_destroyMemory(self->memory);
+	MemoryFactory_destroyMemory(memory);
 }
 
 // ------------------------------------------------------------------

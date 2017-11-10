@@ -6,7 +6,7 @@ OBJECTS=$(patsubst %.cpp, %.o, $(wildcard *.cpp))
 
 CXXFLAGS+= -std=c++11
 LDFLAGS+= -L$(SRCDIR) -lstrut
-CPPFLAGS+= -I$(SRCDIR) -I$(GTEST_DIR)/include
+CPPFLAGS+= -I$(SRCDIR) -I$(GTEST_DIR)/include -I$(GMOCK_DIR)/include
 
 all: $(TESTS)
 
