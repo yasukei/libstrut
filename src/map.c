@@ -1,93 +1,41 @@
 
+#include <string.h>
 #include "map.h"
+#include "memory.h"
+#include "MemoryFactory.h"
 
 // ------------------------------------------------------------------
-// Map
+// SimpleMap
 // ------------------------------------------------------------------
-typedef struct Map
+typedef struct SimpleMap
 {
+	Map super;
 	size_t size;
 	size_t used;
 	void** keys;
 	void** values;
-}Map;
+	Memory* memory;
+} SimpleMap;
 
 // ------------------------------------------------------------------
-static bool __Map_initialize(
-	Map* self,
-	size_t mapSize
-	)
-{
-	self->size = mapSize;
-	self->used = 0;
-	self->keys = Malloc(sizeof(void*) * mapSize);
-	self->values = Malloc(sizeof(void*) * mapSize);
-	if( (self->keys == NULL) || (self->values == NULL) )
-	{
-		Free(self->keys);
-		Free(self->values);
-		return false;
-	}
-	return true;
-}
-
-// ------------------------------------------------------------------
-Map* Map_create(
-	void
-	)
-{
-	Map* self;
-	const size_t defaultMapSize = 64;
-
-	self = Malloc(sizeof(Map));
-	if(self == NULL)
-	{
-		return NULL;
-	}
-
-	if(! __Map_initialize(self, defaultMapSize))
-	{
-		return NULL;
-	}
-	return self;
-}
-
-// ------------------------------------------------------------------
-static void __Map_finalize(
-	Map* self
-	)
-{
-	(void)self;
-}
-
-// ------------------------------------------------------------------
-void Map_destroy(
-	Map* self
-	)
-{
-	__Map_finalize(self);
-	Free(self);
-}
-
-// ------------------------------------------------------------------
-bool __Map_resize(
-	Map* self,
+bool __SimpleMap_resize(
+	SimpleMap* self,
 	size_t newSize
-	)
+)
 {
 	void** newKeys;
 	void** newValues;
 
-	newKeys = Malloc(sizeof(void*) * newSize);
-	newValues = Malloc(sizeof(void*) * newSize);
-	if( (newKeys == NULL) || (newValues == NULL) )
+	newKeys = Memory_malloc(self->memory, sizeof(void*) * newSize);
+	newValues = Memory_malloc(self->memory, sizeof(void*) * newSize);
+	if((newKeys == NULL) || (newValues == NULL))
 	{
-		Free(newKeys);
-		Free(newValues);
+		Memory_free(self->memory, newKeys);
+		Memory_free(self->memory, newValues);
 		return false;
 	}
-	Memcpy(newKeys, self->keys, self->size);
-	Memcpy(newValues, self->values, self->size);
+	memcpy(newKeys, self->keys, self->size);
+	memcpy(newValues, self->values, self->size);
 	self->keys = newKeys;
 	self->values = newValues;
 	self->size = newSize;
@@ -95,12 +43,14 @@ bool __Map_resize(
 }
 
 // ------------------------------------------------------------------
-bool Map_add(
-	Map* self,
+bool SimpleMap_add(
+	Map* super,
 	void* key,
 	void* value
-	)
+)
 {
+	SimpleMap* self = (SimpleMap*)super;
+
 	if(key == NULL)
 	{
 		return false;
@@ -108,7 +58,7 @@ bool Map_add(
 
 	if(self->used >= self->size)
 	{
-		if(! __Map_resize(self, self->size * 2))
+		if(! __SimpleMap_resize(self, self->size * 2))
 		{
 			return false;
 		}
@@ -121,11 +71,12 @@ bool Map_add(
 }
 
 // ------------------------------------------------------------------
-void* Map_find(
-	Map* self,
+void* SimpleMap_find(
+	Map* super,
 	void* key
-	)
+)
 {
+	SimpleMap* self = (SimpleMap*)super;
 	size_t index;
 
 	for(index = 0; index < self->used; index++)
@@ -139,8 +90,8 @@ void* Map_find(
 }
 
 // ------------------------------------------------------------------
-//void Map_remove(
-//	Map* self,
+//void SimpleMap_remove(
+//	Map* super,
 //	void* key,
 //	void* value
 //	)
@@ -148,17 +99,105 @@ void* Map_find(
 //}
 
 // ------------------------------------------------------------------
-void Map_foreach(
-	Map* self,
+void SimpleMap_foreach(
+	Map* super,
 	void (*procedure)(void* key, void* value, void* arg),
 	void* arg
-	)
+)
 {
+	SimpleMap* self = (SimpleMap*)super;
 	size_t index;
 
 	for(index = 0; index < self->used; index++)
 	{
 		procedure(self->keys[index], self->values[index], arg);
 	}
+}
+
+// ------------------------------------------------------------------
+static void __SimpleMap_finalize(
+	SimpleMap* self
+)
+{
+	Memory_free(self->memory, self->keys);
+	Memory_free(self->memory, self->values);
+}
+
+// ------------------------------------------------------------------
+void SimpleMap_destroy(
+	Map* super
+)
+{
+	SimpleMap* self = (SimpleMap*)super;
+
+	Memory* memory = self->memory;
+	__SimpleMap_finalize(self);
+	Memory_free(memory, self);
+	MemoryFactory_destroyMemory(memory);
+}
+
+// ------------------------------------------------------------------
+static bool __SimpleMap_initialize(
+	SimpleMap* self,
+	size_t mapSize,
+	Memory* memory
+)
+{
+	self->size = mapSize;
+	self->used = 0;
+	self->keys = Memory_malloc(memory, sizeof(void*) * mapSize);
+	self->values = Memory_malloc(memory, sizeof(void*) * mapSize);
+	if((self->keys == NULL) || (self->values == NULL))
+	{
+		Memory_free(memory, self->keys);
+		Memory_free(memory, self->values);
+		return false;
+	}
+	self->memory = memory;
+	self->super.add = SimpleMap_add;
+	self->super.find = SimpleMap_find;
+	self->super.foreach = SimpleMap_foreach;
+	self->super.destroy = SimpleMap_destroy;
+	return true;
+}
+
+// ------------------------------------------------------------------
+SimpleMap* SimpleMap_create(
+	void
+)
+{
+	Memory* memory = MemoryFactory_createOSMemory();
+	SimpleMap* self;
+	const size_t defaultSimpleMapSize = 64;
+
+	self = Memory_malloc(memory, sizeof(SimpleMap));
+	if(self == NULL)
+	{
+		return NULL;
+	}
+
+	if(! __SimpleMap_initialize(self, defaultSimpleMapSize, memory))
+	{
+		return NULL;
+	}
+	return self;
+}
+
+// ------------------------------------------------------------------
+// MapFactory
+// ------------------------------------------------------------------
+Map* MapFactory_createSimpleMap(
+	void
+	)
+{
+	return (Map*)SimpleMap_create();
+}
+
+// ------------------------------------------------------------------
+void MapFactory_destroyMap(
+	Map* map
+	)
+{
+	Map_destroy(map);
 }
 

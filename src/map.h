@@ -14,26 +14,51 @@ extern "C" {
 // ------------------------------------------------------------------
 typedef struct Map Map;
 
-Map* Map_create(
-	void
-	);
-void Map_destroy(
-	Map* self
-	);
-bool Map_add(
+// ------------------------------------------------------------------
+struct Map
+{
+	bool	(*add)(Map* self, void* key, void* value);
+	void*	(*find)(Map* self, void* key);
+	void	(*foreach)(Map* self, void (*procedure)(void* key, void* value, void* arg), void* arg);
+	void	(*destroy)(Map* self);
+};
+
+// ------------------------------------------------------------------
+static inline bool Map_add(
 	Map* self,
 	void* key,
 	void* value
-	);
-void* Map_find(
+	)
+{
+	return self->add(self, key, value);
+}
+
+// ------------------------------------------------------------------
+static inline void* Map_find(
 	Map* self,
 	void* key
-	);
-void Map_foreach(
+	)
+{
+	return self->find(self, key);
+}
+
+// ------------------------------------------------------------------
+static inline void Map_foreach(
 	Map* self,
 	void (*procedure)(void* key, void* value, void* arg),
 	void* arg
-	);
+	)
+{
+	return self->foreach(self, procedure, arg);
+}
+
+// ------------------------------------------------------------------
+static inline void Map_destroy(
+	Map* self
+	)
+{
+	return self->destroy(self);
+}
 
 
 // ------------------------------------------------------------------

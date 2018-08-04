@@ -1,4 +1,5 @@
 #include <map.h>
+#include <MapFactory.h>
 #include <gtest/gtest.h>
 
 TEST(Map, create_destroy)
@@ -8,7 +9,7 @@ TEST(Map, create_destroy)
 	// precondition
 
 	// target
-	map = Map_create();
+	map = MapFactory_createSimpleMap();
 
 	// postcondition
 	EXPECT_NE((void*)NULL, map);
@@ -22,7 +23,7 @@ TEST(Map, add_find)
 	int value;
 
 	// precondition
-	map = Map_create();
+	map = MapFactory_createSimpleMap();
 
 	// target
 	Map_add(map, (void*)&key, (void*)&value);

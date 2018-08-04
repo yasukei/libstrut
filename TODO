@@ -10,3 +10,19 @@
 []	code coverage
 [x]	travis ci
 
+# Purpose
+It is to provide the basic container in C, such as List, Tree, Hash, Map.
+
+# Attributes of the container
+Container has below attributes. User can choose whether these attributes enable or not.
+* Memory allocation (dynamic/static memory allocation)
+* Thread safety (unsafe/safe)
+* Container algorithm (simple/complex)
+* Identification of contained objects for searching and sorting
+
+# Kinds of container
+## List
+## Tree
+## Hash
+## Map
+
